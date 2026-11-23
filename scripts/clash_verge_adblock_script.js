@@ -6,11 +6,11 @@ function main(config) {
   config["rules"] = config["rules"] || [];
 
   // 提取所有节点名称
-  const allProxyNames = config["proxies"].map(p => p.name);
+  const allProxyNames = config["proxies"].map((p) => p.name);
 
-  // 按关键字筛选节点的辅助函数（可根据你的机场命名习惯调整正则）
+  // 按关键字筛选节点的辅助函数（可根据你的机场节点命名习惯调整正则）
   const filterProxies = (regex) => {
-    const matched = allProxyNames.filter(name => regex.test(name));
+    const matched = allProxyNames.filter((name) => regex.test(name));
     // 若该地区没有匹配到节点，则回退到 DIRECT，避免空代理组导致报错
     return matched.length > 0 ? matched : ["DIRECT"];
   };
@@ -20,59 +20,54 @@ function main(config) {
   const hkProxies = filterProxies(/(香港|HK|Hong Kong|港)/i);
   const sgProxies = filterProxies(/(新加坡|SG|Singapore|狮城)/i);
 
-  // 自动测速公共配置
+  // 2. 定义自动测速的地区代理组（如需手动选节点，可将 type 改为 "select"）
   const autoTestConfig = {
     type: "url-test",
-    url: "https://www.gstatic.com/generate_204", // 测速地址
-    interval: 300, // 每 300 秒（5 分钟）自动测速一次
-    tolerance: 50  // 延迟差值小于 50ms 时不切换，避免频繁跳节点
+    url: "https://www.gstatic.com/generate_204",
+    interval: 300, // 每 300 秒自动测速一次
+    tolerance: 50  // 延迟差值小于 50ms 时不频繁切换
   };
 
-  // 2. 定义新增的地区代理组
   const regionGroups = [
     {
       name: "🇯🇵 日本节点",
-      ...autoTestConfig, // 如需自动选最快可改为 "select"
+      ...autoTestConfig, // 如需自动选最快可改为 type: "select"
       proxies: jpProxies
     },
     {
       name: "🇺🇸 美国节点",
-      ...autoTestConfig, // 如需自动选最快可改为 "select"
+      ...autoTestConfig, // 如需自动选最快可改为 type: "select"
       proxies: usProxies
     },
     {
       name: "🇭🇰 香港节点",
-      ...autoTestConfig, // 如需自动选最快可改为 "select"
+      ...autoTestConfig, // 如需自动选最快可改为 type: "select"
       proxies: hkProxies
     },
     {
       name: "🇸🇬 新加坡节点",
-      ...autoTestConfig, // 如需自动选最快可改为 "select"
+      ...autoTestConfig, // 如需自动选最快可改为 type: "select"
       proxies: sgProxies
     }
   ];
 
-  // 主选择组（可选：把地区组和所有节点放进去，方便统一切换）
+  // 3. 保留原有“手动选择”节点列表给“🚀 节点选择”
+  const originalManualGroup = config["proxy-groups"].find((g) => g.name.includes("🔰 手动选择"));
+  const manualProxies = originalManualGroup?.proxies?.length
+    ? originalManualGroup.proxies
+    : [...allProxyNames, "DIRECT"];
+
   const mainGroup = {
-    // name: "🚀 节点选择",
-    name: "🔰 手动选择",
+    name: "🚀 节点选择",
     type: "select",
-    proxies: [
-      "🇯🇵 日本节点",
-      "🇺🇸 美国节点",
-      "🇭🇰 香港节点",
-      "🇸🇬 新加坡节点",
-      ...allProxyNames,
-      "DIRECT"
-    ]
+    proxies: manualProxies
   };
 
-  // 将新代理组放到原有 proxy-groups 前面（避免重复同名组）
-  const existingGroupNames = new Set(regionGroups.map(g => g.name).concat(mainGroup.name));
-  const filteredOldGroups = config["proxy-groups"].filter(g => !existingGroupNames.has(g.name));
+  // 去重并合并代理组
+  const filteredOldGroups = config["proxy-groups"].filter((g) => g.name !== mainGroup.name);
   config["proxy-groups"] = [mainGroup, ...regionGroups, ...filteredOldGroups];
 
-  // 3. 注入去广告规则源
+  // 4. 注入去广告规则源（需 Mihomo 内核支持 mrs 格式）
   Object.assign(config["rule-providers"], {
     "AWAvenue-Ads": {
       type: "http",
@@ -92,12 +87,12 @@ function main(config) {
     }
   });
 
-  // 4. 在 rules 最顶部插入去广告拦截规则（去重后插入）
+  // 5. 将去广告拦截规则插入 rules 最顶部（去重后插入）
   const adRules = [
     "RULE-SET,AWAvenue-Ads,REJECT",
     "RULE-SET,anti-AD,REJECT"
   ];
-  const remainingRules = config["rules"].filter(r => !adRules.includes(r));
+  const remainingRules = config["rules"].filter((r) => !adRules.includes(r));
   config["rules"] = [...adRules, ...remainingRules];
 
   return config;
