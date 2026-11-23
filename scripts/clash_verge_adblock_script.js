@@ -19,6 +19,7 @@ function main(config) {
   const usProxies = filterProxies(/(美国|US|United States|America|洛杉矶|圣何塞|西雅图|纽约|达拉斯)/i);
   const hkProxies = filterProxies(/(香港|HK|Hong Kong|港)/i);
   const sgProxies = filterProxies(/(新加坡|SG|Singapore|狮城)/i);
+  const twProxies = filterProxies(/(台湾|TW|Taiwan|台北|新北|台中|高雄)/i);
   const caProxies = filterProxies(/(加拿大|CA|Canada|多伦多|温哥华|蒙特利尔)/i);
   const deProxies = filterProxies(/(德国|DE|Germany|德意志|法兰克福|柏林|慕尼黑)/i);
   const frProxies = filterProxies(/(法国|FR|France|巴黎|马赛)/i);
@@ -26,6 +27,24 @@ function main(config) {
   const gbProxies = filterProxies(/(英国|UK|GB|United Kingdom|Britain|England|伦敦|曼彻斯特)/i);
   const krProxies = filterProxies(/(韩国|KR|Korea|首尔|釜山)/i);
   const inProxies = filterProxies(/(印度|IN|India|孟买|新德里|班加罗尔)/i);
+  const nlProxies = filterProxies(/(荷兰|NL|Netherlands|Holland|阿姆斯特丹)/i);
+  const trProxies = filterProxies(/(土耳其|TR|Turkey|Türkiye|伊斯坦布尔)/i);
+  const brProxies = filterProxies(/(巴西|BR|Brazil|圣保罗)/i);
+  const aeProxies = filterProxies(/(阿联酋|UAE|AE|United Arab Emirates|迪拜|阿布扎比)/i);
+  const ruProxies = filterProxies(/(俄罗斯|RU|Russia|莫斯科|圣彼得堡)/i);
+  const thProxies = filterProxies(/(泰国|TH|Thailand|曼谷)/i);
+  const vnProxies = filterProxies(/(越南|VN|Vietnam|胡志明|河内)/i);
+  const myProxies = filterProxies(/(马来西亚|MY|Malaysia|吉隆坡)/i);
+  const idProxies = filterProxies(/(印度尼西亚|印尼|ID|Indonesia|雅加达)/i);
+  const phProxies = filterProxies(/(菲律宾|PH|Philippines|马尼拉)/i);
+
+  // 按线路特征筛选节点（机场命名差异较大，可按需扩展关键字）
+  const ieplProxies = filterProxies(/(IEPL|专线)/i);
+  const iplcProxies = filterProxies(/(IPLC|企业专线)/i);
+  const cn2Proxies = filterProxies(/(CN2|GIA)/i);
+  const bgpProxies = filterProxies(/(BGP)/i);
+  const lowLatencyProxies = filterProxies(/(低延迟|低延时|Low.?Latency|Lite)/i);
+  const highBandwidthProxies = filterProxies(/(高带宽|大带宽|High.?Bandwidth|Premium)/i);
 
   // 2. 定义自动测速的地区代理组（如需手动选节点，可将 type 改为 "select"）
   const autoTestConfig = {
@@ -55,6 +74,11 @@ function main(config) {
       name: "🇸🇬 新加坡节点",
       ...autoTestConfig, // 如需自动选最快可改为 type: "select"
       proxies: sgProxies
+    },
+    {
+      name: "🇹🇼 台湾节点",
+      ...autoTestConfig, // 如需自动选最快可改为 type: "select"
+      proxies: twProxies
     },
     {
       name: "🇨🇦 加拿大节点",
@@ -90,6 +114,86 @@ function main(config) {
       name: "🇮🇳 印度节点",
       ...autoTestConfig, // 如需自动选最快可改为 type: "select"
       proxies: inProxies
+    },
+    {
+      name: "🇳🇱 荷兰节点",
+      ...autoTestConfig, // 如需自动选最快可改为 type: "select"
+      proxies: nlProxies
+    },
+    {
+      name: "🇹🇷 土耳其节点",
+      ...autoTestConfig, // 如需自动选最快可改为 type: "select"
+      proxies: trProxies
+    },
+    {
+      name: "🇧🇷 巴西节点",
+      ...autoTestConfig, // 如需自动选最快可改为 type: "select"
+      proxies: brProxies
+    },
+    {
+      name: "🇦🇪 阿联酋节点",
+      ...autoTestConfig, // 如需自动选最快可改为 type: "select"
+      proxies: aeProxies
+    },
+    {
+      name: "🇷🇺 俄罗斯节点",
+      ...autoTestConfig, // 如需自动选最快可改为 type: "select"
+      proxies: ruProxies
+    },
+    {
+      name: "🇹🇭 泰国节点",
+      ...autoTestConfig, // 如需自动选最快可改为 type: "select"
+      proxies: thProxies
+    },
+    {
+      name: "🇻🇳 越南节点",
+      ...autoTestConfig, // 如需自动选最快可改为 type: "select"
+      proxies: vnProxies
+    },
+    {
+      name: "🇲🇾 马来西亚节点",
+      ...autoTestConfig, // 如需自动选最快可改为 type: "select"
+      proxies: myProxies
+    },
+    {
+      name: "🇮🇩 印尼节点",
+      ...autoTestConfig, // 如需自动选最快可改为 type: "select"
+      proxies: idProxies
+    },
+    {
+      name: "🇵🇭 菲律宾节点",
+      ...autoTestConfig, // 如需自动选最快可改为 type: "select"
+      proxies: phProxies
+    },
+    {
+      name: "⚡ IEPL 专线",
+      ...autoTestConfig,
+      proxies: ieplProxies
+    },
+    {
+      name: "⚡ IPLC 专线",
+      ...autoTestConfig,
+      proxies: iplcProxies
+    },
+    {
+      name: "⚡ CN2/GIA 专线",
+      ...autoTestConfig,
+      proxies: cn2Proxies
+    },
+    {
+      name: "🌐 BGP 节点",
+      ...autoTestConfig,
+      proxies: bgpProxies
+    },
+    {
+      name: "🚄 低延迟节点",
+      ...autoTestConfig,
+      proxies: lowLatencyProxies
+    },
+    {
+      name: "📶 高带宽节点",
+      ...autoTestConfig,
+      proxies: highBandwidthProxies
     }
   ];
 
