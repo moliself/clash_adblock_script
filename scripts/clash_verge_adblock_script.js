@@ -51,11 +51,20 @@ function main(config) {
     }
   ];
 
-  // 3. 保留原有“手动选择”节点列表给“🚀 节点选择”
+  // 3. 将区域代理组加入“手动选择”和“节点选择”
+  const regionGroupNames = regionGroups.map((group) => group.name);
+
   const originalManualGroup = config["proxy-groups"].find((g) => g.name.includes("🔰 手动选择"));
-  const manualProxies = originalManualGroup?.proxies?.length
+  const originalManualProxies = originalManualGroup?.proxies?.length
     ? originalManualGroup.proxies
     : [...allProxyNames, "DIRECT"];
+
+  // 区域代理组放在节点前面；去重是为了重复运行脚本时不会重复追加
+  const manualProxies = [...new Set([
+    ...regionGroupNames,
+    ...originalManualProxies,
+    "DIRECT"
+  ])];
 
   const mainGroup = {
     name: "🚀 节点选择",
@@ -63,9 +72,29 @@ function main(config) {
     proxies: manualProxies
   };
 
-  // 去重并合并代理组
-  const filteredOldGroups = config["proxy-groups"].filter((g) => g.name !== mainGroup.name);
+  // 更新原有“🔰 手动选择”，使它和“🚀 节点选择”一样可直接选择区域代理组
+  if (originalManualGroup) {
+    originalManualGroup.proxies = manualProxies;
+  }
+
+  // 去除旧版节点选择及旧区域代理组，避免重复运行脚本时重复追加
+  const filteredOldGroups = config["proxy-groups"].filter((g) =>
+    g.name !== mainGroup.name && !regionGroupNames.includes(g.name)
+  );
   config["proxy-groups"] = [mainGroup, ...regionGroups, ...filteredOldGroups];
+
+  // 统一把其他代理组和 rules 中对“🔰 手动选择”的引用改为“🚀 节点选择”
+  for (const group of config["proxy-groups"] ?? []) {
+    if (Array.isArray(group.proxies)) {
+      group.proxies = [...new Set(group.proxies.map((proxy) =>
+        proxy === "🔰 手动选择" ? "🚀 节点选择" : proxy
+      ))];
+    }
+  }
+
+  config["rules"] = (config["rules"] ?? []).map((rule) =>
+    rule.replace(/,🔰 手动选择(,|$)/, ",🚀 节点选择$1")
+  );
 
   // 4. 注入去广告规则源（需 Mihomo 内核支持 mrs 格式）
   Object.assign(config["rule-providers"], {
