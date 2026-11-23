@@ -19,6 +19,13 @@ function main(config) {
   const usProxies = filterProxies(/(美国|US|United States|America|洛杉矶|圣何塞|西雅图|纽约|达拉斯)/i);
   const hkProxies = filterProxies(/(香港|HK|Hong Kong|港)/i);
   const sgProxies = filterProxies(/(新加坡|SG|Singapore|狮城)/i);
+  const caProxies = filterProxies(/(加拿大|CA|Canada|多伦多|温哥华|蒙特利尔)/i);
+  const deProxies = filterProxies(/(德国|DE|Germany|德意志|法兰克福|柏林|慕尼黑)/i);
+  const frProxies = filterProxies(/(法国|FR|France|巴黎|马赛)/i);
+  const auProxies = filterProxies(/(澳大利亚|AU|Australia|悉尼|墨尔本|澳洲)/i);
+  const gbProxies = filterProxies(/(英国|UK|GB|United Kingdom|Britain|England|伦敦|曼彻斯特)/i);
+  const krProxies = filterProxies(/(韩国|KR|Korea|首尔|釜山)/i);
+  const inProxies = filterProxies(/(印度|IN|India|孟买|新德里|班加罗尔)/i);
 
   // 2. 定义自动测速的地区代理组（如需手动选节点，可将 type 改为 "select"）
   const autoTestConfig = {
@@ -48,6 +55,41 @@ function main(config) {
       name: "🇸🇬 新加坡节点",
       ...autoTestConfig, // 如需自动选最快可改为 type: "select"
       proxies: sgProxies
+    },
+    {
+      name: "🇨🇦 加拿大节点",
+      ...autoTestConfig, // 如需自动选最快可改为 type: "select"
+      proxies: caProxies
+    },
+    {
+      name: "🇩🇪 德国节点",
+      ...autoTestConfig, // 如需自动选最快可改为 type: "select"
+      proxies: deProxies
+    },
+    {
+      name: "🇫🇷 法国节点",
+      ...autoTestConfig, // 如需自动选最快可改为 type: "select"
+      proxies: frProxies
+    },
+    {
+      name: "🇦🇺 澳大利亚节点",
+      ...autoTestConfig, // 如需自动选最快可改为 type: "select"
+      proxies: auProxies
+    },
+    {
+      name: "🇬🇧 英国节点",
+      ...autoTestConfig, // 如需自动选最快可改为 type: "select"
+      proxies: gbProxies
+    },
+    {
+      name: "🇰🇷 韩国节点",
+      ...autoTestConfig, // 如需自动选最快可改为 type: "select"
+      proxies: krProxies
+    },
+    {
+      name: "🇮🇳 印度节点",
+      ...autoTestConfig, // 如需自动选最快可改为 type: "select"
+      proxies: inProxies
     }
   ];
 
