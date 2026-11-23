@@ -20,26 +20,34 @@ function main(config) {
   const hkProxies = filterProxies(/(香港|HK|Hong Kong|港)/i);
   const sgProxies = filterProxies(/(新加坡|SG|Singapore|狮城)/i);
 
+  // 自动测速公共配置
+  const autoTestConfig = {
+    type: "url-test",
+    url: "https://www.gstatic.com/generate_204", // 测速地址
+    interval: 300, // 每 300 秒（5 分钟）自动测速一次
+    tolerance: 50  // 延迟差值小于 50ms 时不切换，避免频繁跳节点
+  };
+
   // 2. 定义新增的地区代理组
   const regionGroups = [
     {
       name: "🇯🇵 日本节点",
-      type: "select", // 如需自动选最快可改为 "url-test"
+      ...autoTestConfig, // 如需自动选最快可改为 "select"
       proxies: jpProxies
     },
     {
       name: "🇺🇸 美国节点",
-      type: "select",
+      ...autoTestConfig, // 如需自动选最快可改为 "select"
       proxies: usProxies
     },
     {
       name: "🇭🇰 香港节点",
-      type: "select",
+      ...autoTestConfig, // 如需自动选最快可改为 "select"
       proxies: hkProxies
     },
     {
       name: "🇸🇬 新加坡节点",
-      type: "select",
+      ...autoTestConfig, // 如需自动选最快可改为 "select"
       proxies: sgProxies
     }
   ];
