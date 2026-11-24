@@ -10,9 +10,8 @@ function main(config) {
 
   // 按关键字筛选节点的辅助函数（可根据你的机场节点命名习惯调整正则）
   const filterProxies = (regex) => {
-    const matched = allProxyNames.filter((name) => regex.test(name));
-    // 若该地区没有匹配到节点，则回退到 DIRECT，避免空代理组导致报错
-    return matched.length > 0 ? matched : ["DIRECT"];
+    // 没有匹配节点时返回空数组，由后续逻辑直接过滤掉代理组
+    return allProxyNames.filter((name) => regex.test(name));
   };
 
   const jpProxies = filterProxies(/(日本|JP|Japan|东京|大阪|埼玉|深川)/i);
@@ -197,18 +196,26 @@ function main(config) {
     }
   ];
 
-  // 3. 将区域代理组加入“手动选择”和“节点选择”
-  const regionGroupNames = regionGroups.map((group) => group.name);
+  // 3. 过滤没有匹配节点的代理组，再加入“手动选择”和“节点选择”
+  const availableRegionGroups = regionGroups.filter((group) =>
+    Array.isArray(group.proxies) && group.proxies.length > 0
+  );
+  const allRegionGroupNames = regionGroups.map((group) => group.name);
+  const regionGroupNames = availableRegionGroups.map((group) => group.name);
 
   const originalManualGroup = config["proxy-groups"].find((g) => g.name.includes("🔰 手动选择"));
   const originalManualProxies = originalManualGroup?.proxies?.length
     ? originalManualGroup.proxies
     : [...allProxyNames, "DIRECT"];
 
+  const retainedManualProxies = originalManualProxies.filter((proxy) =>
+    !allRegionGroupNames.includes(proxy) || regionGroupNames.includes(proxy)
+  );
+
   // 区域代理组放在节点前面；去重是为了重复运行脚本时不会重复追加
   const manualProxies = [...new Set([
     ...regionGroupNames,
-    ...originalManualProxies,
+    ...retainedManualProxies,
     "DIRECT"
   ])];
 
@@ -225,9 +232,9 @@ function main(config) {
 
   // 去除旧版节点选择及旧区域代理组，避免重复运行脚本时重复追加
   const filteredOldGroups = config["proxy-groups"].filter((g) =>
-    g.name !== mainGroup.name && !regionGroupNames.includes(g.name)
+    g.name !== mainGroup.name && !allRegionGroupNames.includes(g.name)
   );
-  config["proxy-groups"] = [mainGroup, ...regionGroups, ...filteredOldGroups];
+  config["proxy-groups"] = [mainGroup, ...availableRegionGroups, ...filteredOldGroups];
 
   // 统一把其他代理组和 rules 中对“🔰 手动选择”的引用改为“🚀 节点选择”
   for (const group of config["proxy-groups"] ?? []) {
